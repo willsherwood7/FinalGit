@@ -49,15 +49,20 @@ public class Blob {
 		this.fileName = fileName;
 		String str = "";
         BufferedReader br = new BufferedReader(new FileReader(fileName));
+        
         while(br.ready()){
         	
-        	str = str + (char)br.read();
+        	str = str + br.readLine();
         }
-       
-        content = str;
-        String SHA1 = getSHA1(str);
-        useSHA1 = SHA1;
+        //br.close();
       
+        content = str;
+        //System.out.println(content);
+        String SHA1 = getSHA1(str);
+        //System.out.println(SHA1);
+        useSHA1 = SHA1;
+        //System.out.println(useSHA1);
+        
         
         
         
@@ -65,9 +70,16 @@ public class Blob {
 
 	
 
+
+
+	
+
 public static void main(String []args) throws IOException, NoSuchAlgorithmException {
 	Blob blobby = new Blob("Getter.txt");
-	blobby.makeNewFile();
+	//blobby.makeNewFile(blobby.getSHA1("Hello"));
+	//blobby.makeNewFile();
+	//System.out.println(blobby.getSHA1("Hello"));
+	//blobby.makeNewFile();
 	//System.out.println(blobby.getSHA1("Hello"));
 	
 }
@@ -78,6 +90,5 @@ public static void main(String []args) throws IOException, NoSuchAlgorithmExcept
 
 
 	
-//ifconfig
-//ifconfig/all
+
 
