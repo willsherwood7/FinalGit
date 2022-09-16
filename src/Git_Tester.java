@@ -75,6 +75,7 @@ class Git_Tester {
 		Blob blob = new Blob("testfile.txt");
 		File file = new File("./objects/" + blob.getSHA1(content1));
 		
+		// Legal disclaimer this is the point where the tester and the temporary tester I made say the code fails...
 		assertTrue(file.exists());
 		
 		// Now we check the contents of the file itself!
@@ -89,5 +90,20 @@ class Git_Tester {
 		}
 		
 		assertTrue(fileText.equals(content1));
+	}
+	
+	@Test
+	void testInitialize()
+	{
+		index ind = new index();
+		ind.initialize();
+		
+		File objectsFolder = new File("./objects");
+		File indFile = new File("./index");
+		
+		// Check that index and the objects folder exist
+		assertTrue(objectsFolder.exists());
+		assertTrue(indFile.exists());
+		
 	}
 }
