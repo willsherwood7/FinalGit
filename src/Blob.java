@@ -74,15 +74,15 @@ public class Blob {
 
 	
 
-public static void main(String []args) throws IOException, NoSuchAlgorithmException {
-	Blob blobby = new Blob("Getter.txt");
-	//blobby.makeNewFile(blobby.getSHA1("Hello"));
-	//blobby.makeNewFile();
-	//System.out.println(blobby.getSHA1("Hello"));
-	//blobby.makeNewFile();
-	//System.out.println(blobby.getSHA1("Hello"));
-	
-}
+	public static void main(String []args) throws IOException, NoSuchAlgorithmException {
+		Blob blobby = new Blob("Getter.txt");
+		//blobby.makeNewFile(blobby.getSHA1("Hello"));
+		//blobby.makeNewFile();
+		//System.out.println(blobby.getSHA1("Hello"));
+		//blobby.makeNewFile();
+		//System.out.println(blobby.getSHA1("Hello"));
+		
+	}
 
 }
 
