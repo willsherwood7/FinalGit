@@ -59,6 +59,13 @@ class Git_Tester {
 
 	@AfterAll
 	static void tearDownAfterClass() throws Exception {
+		// Deletes the files created earlier because we do not need them anymore. Kill the spare.
+		File obj = new File("testfile.txt");
+		// You thought it was a file, but it was me, an object!
+		File anotherobj = new File("testfile2electricboogaloo.txt");
+		// I'm sorry I'm just really sleep deprived
+		obj.delete();
+		anotherobj.delete();
 	}
 
 	@Test
