@@ -88,7 +88,7 @@ class Git_Tester {
 			nextLetter = (char)reader.read();
 			fileText += nextLetter;
 		}
-		
+		reader.close();
 		assertTrue(fileText.equals(content1));
 	}
 	
@@ -99,11 +99,38 @@ class Git_Tester {
 		ind.initialize();
 		
 		File objectsFolder = new File("./objects");
-		File indFile = new File("./index");
+		File indFile = new File("./ind");
 		
 		// Check that index and the objects folder exist
 		assertTrue(objectsFolder.exists());
 		assertTrue(indFile.exists());
 		
 	}
+	
+	@Test
+	void testAdd() throws NoSuchAlgorithmException, IOException, FileNotFoundException
+	{
+		// Add the second file we made earlier
+		index ind = new index();
+		ind.add("testfile2electricboogaloo.txt");
+		
+		// Does it exist
+		File file = new File("./objects/84a8e9aa2741258be20c0e1d4cca9ca4d744eda5");
+		// The following line causes a failure because the file does not exist
+		assertTrue(file.exists());
+		
+		// Now we check the index contents
+		String indText = "";
+		char nextLetter;
+		BufferedReader reader = new BufferedReader(new FileReader("ind"));
+		while(reader.ready())
+		{
+			nextLetter = (char)reader.read();
+			indText += nextLetter;
+		}
+		reader.close();
+		assertTrue(indText.equals("testfile2electricboogaloo.txt : 84a8e9aa2741258be20c0e1d4cca9ca4d744eda5"));
+	}
+	
+	
 }
