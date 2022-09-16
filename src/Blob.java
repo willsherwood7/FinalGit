@@ -17,8 +17,8 @@ import java.util.HashMap;
 
 public class Blob {
 	private String fileName;
-	private String useSHA1;
-	private String content;
+	private static String useSHA1;
+	private static String content;
 	
 	public static String getSHA1(String password) throws NoSuchAlgorithmException, UnsupportedEncodingException {
 
@@ -30,7 +30,7 @@ public class Blob {
 	}
 	
 	
-	public void makeNewFile() {
+	public static void makeNewFile() {
 		//PrintWriter printer = new PrintWriter();
 		
 		Path p = Paths.get("Objects/" + useSHA1 + ".txt");
@@ -74,15 +74,15 @@ public class Blob {
 
 	
 
-public static void main(String []args) throws IOException, NoSuchAlgorithmException {
-	Blob blobby = new Blob("Getter.txt");
-	//blobby.makeNewFile(blobby.getSHA1("Hello"));
-	//blobby.makeNewFile();
-	//System.out.println(blobby.getSHA1("Hello"));
-	//blobby.makeNewFile();
-	//System.out.println(blobby.getSHA1("Hello"));
-	
-}
+	public static void main(String []args) throws IOException, NoSuchAlgorithmException {
+		Blob blobby = new Blob("testingfile");
+		Blob.makeNewFile();
+		//blobby.makeNewFile();
+		System.out.println(Blob.getSHA1("Hi there"));
+		//blobby.makeNewFile();
+		//System.out.println(blobby.getSHA1("Hello"));
+		
+	}
 
 }
 
