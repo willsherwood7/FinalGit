@@ -138,9 +138,10 @@ class Git_Tester {
 	void testRemove() throws NoSuchAlgorithmException, IOException
 	{
 		index ind = new index();
+		ind.initialize();
 		ind.remove("testfile2electricboogaloo.txt");
 		
-		File removed = new File("./objects/84a8e9aa2741258be20c0e1d4cca9ca4d744eda5");
+		File removed = new File("84a8e9aa2741258be20c0e1d4cca9ca4d744eda5");
 		assertTrue(!removed.exists());
 		
 	}
