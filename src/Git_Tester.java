@@ -73,7 +73,8 @@ class Git_Tester {
 	@Test
 	void blobTest() throws NoSuchAlgorithmException, IOException {
 		Blob blob = new Blob("testfile.txt");
-		File file = new File("./objects/" + blob.getSHA1(content1));
+		blob.makeNewFile();
+		File file = new File("./objects/" + Blob.getSHA1(content1));
 		
 		// Legal disclaimer this is the point where the tester and the temporary tester I made say the code fails...
 		assertTrue(file.exists());
