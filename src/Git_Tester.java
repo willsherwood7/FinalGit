@@ -131,7 +131,7 @@ class Git_Tester {
 			indText += nextLetter;
 		}
 		reader.close();
-		assertTrue(indText.equals("testfile2electricboogaloo.txt : 84a8e9aa2741258be20c0e1d4cca9ca4d744eda5"));
+		assertTrue(indText.equals("testfile2electricboogaloo.txt : 84a8e9aa2741258be20c0e1d4cca9ca4d744eda5"  + "\n"));
 	}
 	
 	@Test
