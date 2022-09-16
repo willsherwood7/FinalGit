@@ -24,7 +24,9 @@ import org.junit.jupiter.api.Test;
 class Git_Tester {
 	
 	public String SHA1;
-
+	public String content1 = "Szeth-son-son-Vallano, Truthless of Shinovar, wore white on the day he was to kill a king.";
+	public String content2 = "Ash fell from the sky."
+;
 	@BeforeAll
 	static void setUpBeforeClass() throws Exception {
 		
@@ -32,7 +34,7 @@ class Git_Tester {
 		File test = new File("testfile.txt");
 		test.createNewFile();
 		File tester = new File("testfile2electricboogaloo.txt");
-		test.createNewFile();
+		tester.createNewFile();
 		
 		// So in theory this should write the opening line of the Stormlight Archive to the file. In theory.
 		try
@@ -69,7 +71,23 @@ class Git_Tester {
 	}
 
 	@Test
-	void test() {
-		fail("Not yet implemented");
+	void blobTest() throws NoSuchAlgorithmException, IOException {
+		Blob blob = new Blob("testfile.txt");
+		File file = new File("./objects/" + blob.getSHA1(content1));
+		
+		assertTrue(file.exists());
+		
+		// Now we check the contents of the file itself!
+		BufferedReader reader = new BufferedReader(new FileReader("./objects/" + blob.getSHA1(content1)));
+		String fileText = "";
+		char nextLetter;
+		
+		while(reader.ready())
+		{
+			nextLetter = (char)reader.read();
+			fileText += nextLetter;
+		}
+		
+		assertTrue(fileText.equals(content1));
 	}
 }
