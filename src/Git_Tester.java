@@ -140,6 +140,7 @@ class Git_Tester {
 		
 		File removed = new File("./objects/84a8e9aa2741258be20c0e1d4cca9ca4d744eda5");
 		assertTrue(!removed.exists());
+		
 	}
 	
 }
