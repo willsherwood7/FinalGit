@@ -100,7 +100,7 @@ class Git_Tester {
 		ind.initialize();
 		
 		File objectsFolder = new File("./objects");
-		File indFile = new File("./ind");
+		File indFile = new File("./index");
 		
 		// Check that index and the objects folder exist
 		assertTrue(objectsFolder.exists());
@@ -113,6 +113,7 @@ class Git_Tester {
 	{
 		// Add the second file we made earlier
 		index ind = new index();
+		ind.initialize();
 		ind.add("testfile2electricboogaloo.txt");
 		
 		// Does it exist
@@ -123,7 +124,7 @@ class Git_Tester {
 		// Now we check the index contents
 		String indText = "";
 		char nextLetter;
-		BufferedReader reader = new BufferedReader(new FileReader("ind"));
+		BufferedReader reader = new BufferedReader(new FileReader("index"));
 		while(reader.ready())
 		{
 			nextLetter = (char)reader.read();
