@@ -11,20 +11,21 @@ import java.nio.file.StandardOpenOption;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 
 
-public class index {
+public class Index {
 	HashMap<String, String> tracker = new HashMap<String, String>();
 	HashMap<String, String> toDeleteMap = new HashMap<String, String>();
 	
-	public index() {
-		
-		
+	public Index() {
+		initialize();
 	}
+	
 	public void initialize() {
-		new File("Objects").mkdir();
+		new File("objects").mkdir();
 		Path p = Paths.get("index.txt");
         try {
             Files.writeString(p, "", StandardCharsets.ISO_8859_1);
@@ -36,14 +37,16 @@ public class index {
 	}
 	
 	public void add(String fileName) throws IOException, NoSuchAlgorithmException {
-		
 		Blob blobby = new Blob(fileName);
-		tracker.put(fileName, blobby.getSHA1(fileName));
-		blobby.makeNewFile(); 
-		
+		System.out.println(fileName + blobby.getUseSHA1());
+		tracker.put(fileName, blobby.getUseSHA1());
+		createFile();
 		PrintWriter writer = new PrintWriter("index.txt");
-		toDeleteMap.put(fileName, fileName + ": " + blobby.getSHA1(fileName));
-		writer.println(fileName + ": " + blobby.getSHA1(fileName));
+		toDeleteMap.put(fileName, fileName + " " + blobby.getUseSHA1());
+		System.out.println(blobby.getUseSHA1());
+		for (Map.Entry<String, String> entry : tracker.entrySet()) {
+		    writer.println(entry.getKey() + " " + entry.getValue());
+		}
 		writer.close();
 		
 	}
@@ -69,13 +72,26 @@ public class index {
 		System.out.println(tracker.get(fileName));
 		File toDelete = new File(tracker.get(fileName) + ".txt");
 		toDelete.delete();
-		
+		tracker.remove(fileName);
+		PrintWriter writer = new PrintWriter("index.txt");
+		for (Map.Entry<String, String> entry : tracker.entrySet()) {
+		    writer.println(entry.getKey() + " " + entry.getValue());
+		}
+		writer.close();
 	}
 	
 	public static void main(String []args) throws NoSuchAlgorithmException, IOException {
-		index the = new index();
-		the.initialize();
-		the.add("Getter.txt");
-		the.remove("Getter.txt");
+		Index myGit = new Index();
+		myGit.add("test1.txt");
+		System.out.println(Blob.getSHA1("Hi there"));
+		myGit.add("test2.txt");
+		System.out.println(Blob.getSHA1("Yoyoyo"));
+		myGit.remove("test1.txt");
+		myGit.remove("test2.txt");
+	}
+	
+	public void createFile() throws IOException {
+		File file = new File("index.txt");
+		file.createNewFile();
 	}
 }

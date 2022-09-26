@@ -33,7 +33,7 @@ public class Blob {
 	public static void makeNewFile() {
 		//PrintWriter printer = new PrintWriter();
 		
-		Path p = Paths.get("Objects/" + useSHA1 + ".txt");
+		Path p = Paths.get("objects/" + useSHA1);
         try {
             Files.writeString(p, content, StandardCharsets.ISO_8859_1);
         } catch (IOException e) {
@@ -42,8 +42,6 @@ public class Blob {
         }
         
 	}
-	
-	
 	
 	public Blob(String fileName) throws IOException, NoSuchAlgorithmException {
 		this.fileName = fileName;
@@ -62,28 +60,28 @@ public class Blob {
         //System.out.println(SHA1);
         useSHA1 = SHA1;
         //System.out.println(useSHA1);
-        
-        
-        
-        
+        makeNewFile();
 	}
 
-	
-
-
-
-	
-
 	public static void main(String []args) throws IOException, NoSuchAlgorithmException {
-		Blob blobby = new Blob("testingfile");
-		Blob.makeNewFile();
-		//blobby.makeNewFile();
+		Index myGit = new Index();
+		myGit.add("test1.txt");
+		myGit.add("test2.txt");
 		System.out.println(Blob.getSHA1("Hi there"));
+		System.out.println(Blob.getSHA1("Yoyoyo"));
 		//blobby.makeNewFile();
 		//System.out.println(blobby.getSHA1("Hello"));
 		
 	}
-
+	
+	public String getUseSHA1() {
+		return useSHA1;
+	}
+	
+	public void createFile() throws IOException {
+		File file = new File("index.txt");
+		file.createNewFile();
+	}
 }
 
 

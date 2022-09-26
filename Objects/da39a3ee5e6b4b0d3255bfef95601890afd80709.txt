@@ -1,6 +1,0 @@
-test1.txt
-null
-
-Andrew
-1/2/2020
-First commit
