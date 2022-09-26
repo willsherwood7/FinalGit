@@ -38,14 +38,12 @@ public class Index {
 	
 	public void add(String fileName) throws IOException, NoSuchAlgorithmException {
 		Blob blobby = new Blob(fileName);
-		System.out.println(fileName + blobby.getUseSHA1());
 		tracker.put(fileName, blobby.getUseSHA1());
 		createFile();
 		PrintWriter writer = new PrintWriter("index.txt");
 		toDeleteMap.put(fileName, fileName + " " + blobby.getUseSHA1());
-		System.out.println(blobby.getUseSHA1());
 		for (Map.Entry<String, String> entry : tracker.entrySet()) {
-		    writer.println(entry.getKey() + " " + entry.getValue());
+		    writer.println(entry.getKey() + " : " + entry.getValue());
 		}
 		writer.close();
 		
@@ -69,7 +67,6 @@ public class Index {
 		//tracker.remove(fileName, blobby.getSHA1(fileName));
 		
 		removeLine(toDeleteMap.get(fileName));
-		System.out.println(tracker.get(fileName));
 		File toDelete = new File(tracker.get(fileName) + ".txt");
 		toDelete.delete();
 		tracker.remove(fileName);
@@ -83,11 +80,7 @@ public class Index {
 	public static void main(String []args) throws NoSuchAlgorithmException, IOException {
 		Index myGit = new Index();
 		myGit.add("test1.txt");
-		System.out.println(Blob.getSHA1("Hi there"));
 		myGit.add("test2.txt");
-		System.out.println(Blob.getSHA1("Yoyoyo"));
-		myGit.remove("test1.txt");
-		myGit.remove("test2.txt");
 	}
 	
 	public void createFile() throws IOException {

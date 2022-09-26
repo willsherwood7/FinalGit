@@ -17,6 +17,7 @@ import java.util.*;
 public class Tree {
 	
 	ArrayList<String> list = new ArrayList<String>();
+	String address;
 	
 	public Tree(ArrayList<String> blobList) throws NoSuchAlgorithmException, UnsupportedEncodingException
 	{
@@ -27,11 +28,11 @@ public class Tree {
 				allStrings += blobList.get(i) + "\n";
 			}
 			else {
-				allStrings += blobList.get(i)
+				allStrings += blobList.get(i);
 			}
 		}
 		String sha1 = Blob.getSHA1(allStrings);
-		System.out.println(sha1);
+		address = sha1;
 		// This code is from my own Blob method. Convenient how that works out. Basically creates the file with the sha1 as the name.
 		Path p = Paths.get(sha1);
         try {
@@ -44,5 +45,9 @@ public class Tree {
 	
 	public ArrayList<String> getList() {
 		return list;
+	}
+	
+	public String getAddress() {
+		return address;
 	}
 }
