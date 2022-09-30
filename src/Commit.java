@@ -16,23 +16,26 @@ public class Commit {
 	String summary;
 	String author;
 	String date;
-	String pTree;
+	String myTree;
 	String parent;
 	String child;
 	String sha1;
+	String parentTreeLocation;
 	
 	public Commit(String summary, String author, String parentFileName) throws IOException, NoSuchAlgorithmException {
 		this.summary = summary;
 		this.author = author;
 		//this.pTree = pTree;
 		this.parent = parentFileName;
-		if (parent != null) {
-			this.setFilesChildToMe(parent);
-		}
 		child = null;
 		date = getDate();
 		sha1 = getCommitName();
+		if (parent != null) {
+			this.setFilesChildToMe(parent);
+		}
 		createTree();
+		clearIndex();
+		writeFile();
 		
 		//clearIndex();
 	}
@@ -68,24 +71,22 @@ public class Commit {
 	}
 	
 	public void createTree() throws IOException, NoSuchAlgorithmException {
-		ArrayList<String> indexList = new ArrayList<String>();
-		BufferedReader reader = new BufferedReader(new FileReader("index.txt"));
+		ArrayList<String> indexList = new ArrayList<String>();//adding previous Commit's tree
+		if (parent != null) {
+			indexList.add("tree : " + getTreeLocation(parent));
+			parentTreeLocation  =  getTreeLocation(parent);
+		}
+		BufferedReader reader = new BufferedReader(new FileReader("index"));
 		String line = reader.readLine();
 		while (line != null) {
 			String fileName = line.substring(0, line.indexOf(' '));
-			String sha1 = line.substring(line.indexOf(' ') + 3);
+			String sha1 = line.substring(line.indexOf(' ') + 1);
 			String toAdd = "blob : " + sha1 + " " + fileName; 
 			indexList.add(toAdd);
 			line = reader.readLine();
 		}
-		
-		//adding previous Commit's tree
-		if (parent != null) {
-			indexList.add("tree : " + getTreeLocation(parent).substring(10));
-		}
-		
 		Tree newTree = new Tree(indexList);
-		pTree = newTree.getAddress();
+		myTree = newTree.getAddress();
 	}
 
 	public String getTreeLocation(String fileName) throws IOException {
@@ -94,6 +95,10 @@ public class Commit {
 		String line = reader.readLine();
 		reader.close();
 		return line;
+	}
+	
+	public void clearIndex() throws IOException {
+		new PrintWriter("index").close();
 	}
 	
 	public static String getSHA1(String password) throws NoSuchAlgorithmException, UnsupportedEncodingException {
@@ -108,10 +113,11 @@ public class Commit {
 	
 	public void writeFile() throws NoSuchAlgorithmException, IOException {
 		File toWrite = new File("./objects/" + sha1);
+		System.out.println(sha1);
 		toWrite.createNewFile();
 		
 		PrintWriter writer = new PrintWriter(toWrite);
-		writer.println(pTree);
+		writer.println(myTree);
 		writer.println(parent);
 		writer.println(child);
 		writer.println(author);
@@ -122,13 +128,21 @@ public class Commit {
 	
 	public String getCommitName() throws NoSuchAlgorithmException, UnsupportedEncodingException {
 		String toSHA1 = summary + date + author + parent;
+		System.out.println(getSHA1(toSHA1));
 		return getSHA1(toSHA1);
 	}
 	
+	//gets the tree right before the earliest file you want to change
+	public String getCorrectTree(ArrayList<String> blobNames) {
+		
+	}
+	
 	public static void main(String []args) throws NoSuchAlgorithmException, IOException {
+		Index myGit = new Index();
+		myGit.add("test1.txt");
+		myGit.add("test2.txt");
 		Commit commit1 = new Commit("Booblah", "WillSherwood", null);
-		commit1.writeFile();
-//		Commit commit2 = new Commit("Welcome", "Charles", commit1);
-//		commit2.writeFile();
+		myGit.add("test3.txt");
+		Commit commit2 = new Commit("Welcome", "Charles", "./objects/" + commit1.getCommitName());
 	}
 }

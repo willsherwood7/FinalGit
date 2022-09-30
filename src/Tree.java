@@ -34,7 +34,7 @@ public class Tree {
 		String sha1 = Blob.getSHA1(allStrings);
 		address = sha1;
 		// This code is from my own Blob method. Convenient how that works out. Basically creates the file with the sha1 as the name.
-		Path p = Paths.get(sha1);
+		Path p = Paths.get("./objects/" +sha1);
         try {
             Files.writeString(p, allStrings, StandardCharsets.ISO_8859_1);
         } catch (IOException e) {
