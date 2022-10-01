@@ -36,7 +36,7 @@ public class Commit {
 		if (parent != null) {
 			this.setFilesChildToMe(parent);
 		}
-		createTree();
+		createMyTree();
 		clearIndex();
 		writeFile();
 		
@@ -73,7 +73,7 @@ public class Commit {
 		return dtf.format(now);  
 	}
 	
-	public void createTree() throws IOException, NoSuchAlgorithmException {
+	public void createMyTree() throws IOException, NoSuchAlgorithmException {
 		ArrayList<String> indexList = new ArrayList<String>();//adding previous Commit's tree
 		ArrayList<String> deleteList = new ArrayList<String>();
 		ArrayList<String> editList = new ArrayList<String>();
@@ -84,24 +84,28 @@ public class Commit {
 			if (line.substring(0, 6).equals("*edit*")) {
 				deleteList.add(line.substring(line.indexOf(" ")));
 				editList.add(line.substring(5, line.indexOf(" ") - 1));
+				System.out.println("Found an edit");
 			}
 			else if (line.substring(0, 8).equals("*delete*")) {
 				deleteList.add(line.substring(line.indexOf(" ")));
+				System.out.println("Found a delete");
 			}
 			line = reader.readLine();
 		}
 		reader.close();
 		
 		if (parent != null) {
-			if (deleteList.size() > 0) {
+			if (deleteList.size() == 0) {
 				indexList.add("tree : " + getTreeLocation(parent));
 				parentTreeLocation  =  getTreeLocation(parent);
+				System.out.println("Not traversing");
 			}
 			else {
 				String newParentTreeLocation  = getLatestPossibleTree(deleteList, getTreeLocation(parent));
 				indexList.add("tree : " + parentTreeLocation);
 				parentTreeLocation = newParentTreeLocation;
 				addEditedFiles(editList);
+				System.out.println("thats a problem");
 			}
 		}
 		
@@ -127,9 +131,8 @@ public class Commit {
 
 	public String getTreeLocation(String parentTree) throws IOException {
 		BufferedReader reader = new BufferedReader(new FileReader(parentTree));
-		String newContent = "";
 		String line = reader.readLine();
-		reader.close();
+		System.out.println(line);
 		return line;
 	}
 	
@@ -149,7 +152,6 @@ public class Commit {
 	
 	public void writeFile() throws NoSuchAlgorithmException, IOException {
 		File toWrite = new File("./objects/" + sha1);
-		System.out.println(sha1);
 		toWrite.createNewFile();
 		
 		PrintWriter writer = new PrintWriter(toWrite);
@@ -164,7 +166,6 @@ public class Commit {
 	
 	public String getCommitName() throws NoSuchAlgorithmException, UnsupportedEncodingException {
 		String toSHA1 = summary + date + author + parent;
-		System.out.println(getSHA1(toSHA1));
 		return getSHA1(toSHA1);
 	}
 	
@@ -246,11 +247,11 @@ public class Commit {
 		myGit.add("test2.txt");
 		Commit commit1 = new Commit("Booblah", "WillSherwood", null);
 		myGit.add("test3.txt");
-//		Commit commit2 = new Commit("Welcome", "Charles", "./objects/" + commit1.getCommitName());
-//		Commit commit3 = new Commit("3rd Commit", "Eliza",  "./objects/" + commit2.getCommitName());
-//		myGit.add("test4.txt");
-//		myGit.add("test5.txt");
-//		Commit commit4 = new Commit("Last Commit", "Eliza",  "./objects/" + commit2.getCommitName());
+		Commit commit2 = new Commit("Welcome", "Charles", "./objects/" + commit1.getCommitName());
+		Commit commit3 = new Commit("3rd Commit", "Eliza",  "./objects/" + commit2.getCommitName());
+		myGit.add("test4.txt");
+		myGit.add("test5.txt");
+		Commit commit4 = new Commit("Last Commit", "Eliza",  "./objects/" + commit2.getCommitName());
 
 	}
 }
