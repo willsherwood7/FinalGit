@@ -177,6 +177,11 @@ public class Index {
 		writer.close();
 	}
 	
+	public void editTest(String fileName) throws FileNotFoundException {
+		PrintWriter writer = new PrintWriter(fileName);
+		writer.print(Math.random());
+	}
+	
 	public static void main(String []args) throws NoSuchAlgorithmException, IOException {
 		Index myGit = new Index();
 		myGit.add("test1.txt");

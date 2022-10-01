@@ -88,7 +88,7 @@ public class Commit {
 		while (line != null) {
 			if (line.substring(0, 6).equals("*edit*")) {
 				deleteList.add(line.substring(line.indexOf(" ") + 1));
-				editList.add(line.substring(6, line.indexOf(" ") - 1));
+				editList.add(line.substring(6, line.indexOf(" ")));
 				System.out.print("Found an edit");
 			}
 			else if (line.substring(0, 8).equals("*delete*")) {
@@ -114,9 +114,13 @@ public class Commit {
 				System.out.println(Files.readString(newP));
 				System.out.println();
 				
-				if (!newParentTreeLocation.equals("")) {
+				if (!newParentTreeLocation.equals("") &&  !newParentTreeLocation.equals("*")) {
 					indexList.add("tree : " + newParentTreeLocation);
 					parentTreeLocation = newParentTreeLocation;
+				}
+				else if (newParentTreeLocation.equals("*")) {
+					indexList.add("tree : " + getTreeLocation(parent));
+					parentTreeLocation  =  getTreeLocation(parent);
 				}
 				//System.out.println(editList);
 				addEditedFiles(editList);
@@ -194,34 +198,51 @@ public class Commit {
 		String futureTree = "";
 		while (ShasToDelete.size() > 0) {
 			System.out.println();
-			System.out.println("Tree file contents: ");
-			Path p = Paths.get("./objects/" + currentTreeName);
-			System.out.println(Files.readString(p));
-			System.out.println();
+			if (currentTreeName.length() != 0) {
+				System.out.println("Tree file contents: ");
+				Path p = Paths.get("./objects/" + currentTreeName);
+				System.out.println(Files.readString(p));
+				System.out.println();
+			}
+			else {
+				System.out.println("No trees remain");
+			}
 			
+			System.out.println(ShasToDelete);
+			if (currentTreeName.equals("") && ShasToDelete.size() != 0) {
+				return "*";
+			}
 			BufferedReader reader = new BufferedReader(new FileReader("./objects/" + currentTreeName));
 			String line = reader.readLine();
+			System.out.println(line);
 			if (line.substring(0, 4).equals("tree")) {
 				futureTree = line.substring(7, 47);
+				System.out.println(futureTree);
 			}
 			else if (line.substring(0, 4).equals("blob")) {
 				futureTree = "";
 			}
-			while (line != null && !line.substring(0, 4).equals("tree")) {
+			while (line != null) {
 				System.out.println(line.substring(7, 47));
-				String sha1 = line.substring(7, 47);
-				if (ShasToDelete.contains(sha1)) {
-					ShasToDelete.remove(sha1);
-					if (ShasToDelete.size() == 0) {
-						found = true;
+				System.out.println(ShasToDelete.contains(line.substring(7, 47)));
+				
+				if (!line.substring(0, 4).equals("tree")) {
+					String sha1 = line.substring(7, 47);
+					if (ShasToDelete.contains(sha1)) {
+						ShasToDelete.remove(sha1);
+						System.out.println("DELETING");
+						if (ShasToDelete.size() == 0) {
+							found = true;
+						}
 					}
-				}
-				else {
-					String formattedForIndex = line.substring(48) + " " + line.substring(7, 47);
-					linesToAdd.add(formattedForIndex);
+					else {
+						String formattedForIndex = line.substring(48) + " " + line.substring(7, 47);
+						linesToAdd.add(formattedForIndex);
+					}
 				}
 				line = reader.readLine();
 			}
+			currentTreeName = futureTree;
 			reader.close();
 		}
 		addFilesNeeded(linesToAdd);
@@ -235,6 +256,7 @@ public class Commit {
 	
 	public void addEditedFiles(ArrayList<String> fileNamesToUpdate) throws NoSuchAlgorithmException, IOException {
 		for (int i = 0; i < fileNamesToUpdate.size(); i++) {
+			System.out.println(fileNamesToUpdate.get(i));
 			Blob blobby = new Blob(fileNamesToUpdate.get(i));
 			
 			Path p = Paths.get("index");
@@ -274,13 +296,14 @@ public class Commit {
 		myGit.add("test1.txt");
 		myGit.add("test2.txt");
 		Commit commit1 = new Commit("1st Commit", "WillSherwood", null);
-		myGit.delete("test2.txt");
-		Commit commit2 = new Commit("2nd Commit", "Charles", "./objects/" + commit1.getCommitName());
 		myGit.add("test3.txt");
+		Commit commit2 = new Commit("2nd Commit", "Charles", "./objects/" + commit1.getCommitName());
 		Commit commit3 = new Commit("3rd Commit", "Eliza",  "./objects/" + commit2.getCommitName());
-//		myGit.add("test4.txt");
-//		myGit.add("test5.txt");
-//		Commit commit4 = new Commit("4th Commit", "Ava",  "./objects/" + commit2.getCommitName());
+		myGit.add("test4.txt");
+		myGit.add("test5.txt");
+		myGit.editTest("test2.txt");
+		myGit.edit("test2.txt");
+		Commit commit4 = new Commit("4th Commit", "Ava",  "./objects/" + commit3.getCommitName());
 
 	}
 }
