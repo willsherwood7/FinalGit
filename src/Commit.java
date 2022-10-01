@@ -6,6 +6,9 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
@@ -72,25 +75,58 @@ public class Commit {
 	
 	public void createTree() throws IOException, NoSuchAlgorithmException {
 		ArrayList<String> indexList = new ArrayList<String>();//adding previous Commit's tree
-		if (parent != null) {
-			indexList.add("tree : " + getTreeLocation(parent));
-			parentTreeLocation  =  getTreeLocation(parent);
-		}
+		ArrayList<String> deleteList = new ArrayList<String>();
+		ArrayList<String> editList = new ArrayList<String>();
+		
 		BufferedReader reader = new BufferedReader(new FileReader("index"));
 		String line = reader.readLine();
 		while (line != null) {
-			String fileName = line.substring(0, line.indexOf(' '));
-			String sha1 = line.substring(line.indexOf(' ') + 1);
-			String toAdd = "blob : " + sha1 + " " + fileName; 
-			indexList.add(toAdd);
+			if (line.substring(0, 6).equals("*edit*")) {
+				deleteList.add(line.substring(line.indexOf(" ")));
+				editList.add(line.substring(5, line.indexOf(" ") - 1));
+			}
+			else if (line.substring(0, 8).equals("*delete*")) {
+				deleteList.add(line.substring(line.indexOf(" ")));
+			}
 			line = reader.readLine();
 		}
+		reader.close();
+		
+		if (parent != null) {
+			if (deleteList.size() > 0) {
+				indexList.add("tree : " + getTreeLocation(parent));
+				parentTreeLocation  =  getTreeLocation(parent);
+			}
+			else {
+				String newParentTreeLocation  = getLatestPossibleTree(deleteList, getTreeLocation(parent));
+				indexList.add("tree : " + parentTreeLocation);
+				parentTreeLocation = newParentTreeLocation;
+				addEditedFiles(editList);
+			}
+		}
+		
+		//This part only adds stuff from Index
+		//Going to create a file
+		BufferedReader reader2 = new BufferedReader(new FileReader("index"));
+		String fileName;
+		String line2 = reader2.readLine();
+		while (line2 != null) {
+			if (!line2.substring(0,1).equals("*")) {
+				fileName = line2.substring(0, line2.indexOf(' '));
+				String sha1 = line2.substring(line2.indexOf(' ') + 1);
+				String toAdd = "blob : " + sha1 + " " + fileName; 
+				indexList.add(toAdd);
+			}
+			line2 = reader2.readLine();
+		}
+		reader2.close();
+		
 		Tree newTree = new Tree(indexList);
 		myTree = newTree.getAddress();
 	}
 
-	public String getTreeLocation(String fileName) throws IOException {
-		BufferedReader reader = new BufferedReader(new FileReader(fileName));
+	public String getTreeLocation(String parentTree) throws IOException {
+		BufferedReader reader = new BufferedReader(new FileReader(parentTree));
 		String newContent = "";
 		String line = reader.readLine();
 		reader.close();
@@ -133,8 +169,75 @@ public class Commit {
 	}
 	
 	//gets the tree right before the earliest file you want to change
-	public String getCorrectTree(ArrayList<String> blobNames) {
-		
+	public String getLatestPossibleTree(ArrayList<String> ShasToDelete, String parentName) throws IOException {
+		ArrayList<String> linesToAdd = new ArrayList<String>();
+		String currentTreeName = parentName;
+		while (ShasToDelete.size() > 0) {
+			BufferedReader reader = new BufferedReader(new FileReader(currentTreeName));
+			String line = reader.readLine();
+			String futureTree = "";
+			if (line.substring(0, 4).equals("tree")) {
+				futureTree = line.substring(7, 48);
+			}
+			else if (line.substring(0, 4).equals("blob")) {
+				futureTree = "";
+			}
+			line = reader.readLine();
+			while (line != null) {
+				String sha1 = line.substring(7, 48);
+				if (ShasToDelete.contains(sha1)) {
+					ShasToDelete.remove(sha1);
+					if (ShasToDelete.size() == 0) {
+						return futureTree;
+					}
+				}
+				else {
+					String formattedForindex = line.substring(49) + line.substring(7, 48);
+					linesToAdd.add(formattedForindex);
+				}
+				line = reader.readLine();
+			}
+			reader.close();
+		}
+		return "";
+	}
+	
+	public void addEditedFiles(ArrayList<String> fileNamesToUpdate) throws NoSuchAlgorithmException, IOException {
+		for (int i = 0; i < fileNamesToUpdate.size(); i++) {
+			Blob blobby = new Blob(fileNamesToUpdate.get(i));
+			
+			Path p = Paths.get("index");
+			String previousContent = Files.readString(p);
+			String newContent;
+			if (previousContent.length() == 0) {
+				newContent = previousContent + fileNamesToUpdate.get(i) + " " + blobby.getUseSHA1();
+			}
+			else {
+				newContent = previousContent + "\n" + fileNamesToUpdate.get(i) + " " + blobby.getUseSHA1();
+			}
+			PrintWriter writer = new PrintWriter("index");
+			writer.print(newContent);
+			writer.close();
+		}
+	}
+	
+	//HAVE TO WRITE
+	public void addFilesNeeded(ArrayList<String> linesToAdd) throws IOException {
+		for (int i = 0; i < linesToAdd.size(); i++) {
+			
+			Path p = Paths.get("index");
+			String previousContent = Files.readString(p);
+			String newContent;
+			if (previousContent.length() == 0) {
+				newContent = previousContent + linesToAdd.get(i);
+			}
+			else {
+				newContent = previousContent + "\n" + linesToAdd.get(i);
+			}
+			PrintWriter writer = new PrintWriter("index");
+			writer.print(newContent);
+			writer.close();
+		}
 	}
 	
 	public static void main(String []args) throws NoSuchAlgorithmException, IOException {
@@ -143,6 +246,11 @@ public class Commit {
 		myGit.add("test2.txt");
 		Commit commit1 = new Commit("Booblah", "WillSherwood", null);
 		myGit.add("test3.txt");
-		Commit commit2 = new Commit("Welcome", "Charles", "./objects/" + commit1.getCommitName());
+//		Commit commit2 = new Commit("Welcome", "Charles", "./objects/" + commit1.getCommitName());
+//		Commit commit3 = new Commit("3rd Commit", "Eliza",  "./objects/" + commit2.getCommitName());
+//		myGit.add("test4.txt");
+//		myGit.add("test5.txt");
+//		Commit commit4 = new Commit("Last Commit", "Eliza",  "./objects/" + commit2.getCommitName());
+
 	}
 }

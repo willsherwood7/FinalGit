@@ -61,7 +61,6 @@ public class Index {
 		PrintWriter writer = new PrintWriter("index");
 		writer.print(newContent);
 		writer.close();
-		
 	}
 	
 	 public void removeLineFromFile(String lineToRemove) throws FileNotFoundException {
@@ -138,24 +137,23 @@ public class Index {
 		tracker.remove(fileName);
 	}
 	
-	public void deleteFile(String fileName) {
-		tracker.put(fileName, blobby.getUseSHA1());
-		toDeleteMap.put(fileName, fileName + " " + blobby.getUseSHA1());
-		
+	public void deleteFile(String fileName) throws IOException {
 		Path p = Paths.get("index");
 		String previousContent = Files.readString(p);
 		String newContent;
 		if (previousContent.length() == 0) {
-			newContent = previousContent + fileName + " " + blobby.getUseSHA1();
+			newContent = previousContent + "*delete*" + fileName + " " + tracker.get(fileName);
 		}
 		else {
-			newContent = previousContent + "\n" + fileName + " " + blobby.getUseSHA1();
+			newContent = previousContent + "\n*delete*" + fileName + " " + tracker.get(fileName);
 		}
 				
 		PrintWriter writer = new PrintWriter("index");
 		writer.print(newContent);
-		writer.close();
+		writer.close()
 	}
+	
+	//edit file should be *edit*file1.txt 293749824793487 : filenew.txt 3298409823
 	
 	public static void main(String []args) throws NoSuchAlgorithmException, IOException {
 		Index myGit = new Index();
