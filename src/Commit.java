@@ -78,23 +78,17 @@ public class Commit {
 		ArrayList<String> deleteList = new ArrayList<String>();
 		ArrayList<String> editList = new ArrayList<String>();
 		
-		System.out.println("Index file contents before commit: ");
-		Path p = Paths.get("index");
-		System.out.println(Files.readString(p));
-		System.out.println();
-		
 		BufferedReader reader = new BufferedReader(new FileReader("index"));
 		String line = reader.readLine();
 		while (line != null) {
 			if (line.substring(0, 6).equals("*edit*")) {
-				deleteList.add(line.substring(line.indexOf(" ") + 1));
+				deleteList.add(line.substring(line.indexOf(" ") + 1, line.indexOf(" ") + 41));
+				System.out.println("Delete list:");
+				System.out.println(deleteList);
 				editList.add(line.substring(6, line.indexOf(" ")));
-				System.out.print("Found an edit");
 			}
 			else if (line.substring(0, 8).equals("*delete*")) {
 				deleteList.add(line.substring(line.indexOf(" ") + 1));
-				System.out.print("Found a delete: ");
-				System.out.println(line.substring(line.indexOf(" ") + 1));
 			}
 			line = reader.readLine();
 		}
@@ -104,15 +98,9 @@ public class Commit {
 			if (deleteList.size() == 0) {
 				indexList.add("tree : " + getTreeLocation(parent));
 				parentTreeLocation  =  getTreeLocation(parent);
-				System.out.println("Not traversing");
 			}
 			else {
 				String newParentTreeLocation  = getLatestPossibleTree(deleteList, getTreeLocation(parent));
-				
-				System.out.println("Index file with files we have stolen: ");
-				Path newP = Paths.get("index");
-				System.out.println(Files.readString(newP));
-				System.out.println();
 				
 				if (!newParentTreeLocation.equals("") &&  !newParentTreeLocation.equals("*")) {
 					indexList.add("tree : " + newParentTreeLocation);
@@ -142,7 +130,6 @@ public class Commit {
 			line2 = reader2.readLine();
 		}
 		reader2.close();
-		
 		System.out.println(indexList);
 		Tree newTree = new Tree(indexList);
 		myTree = newTree.getAddress();
@@ -191,43 +178,26 @@ public class Commit {
 	//gets the tree right before the earliest file you want to change
 	public String getLatestPossibleTree(ArrayList<String> ShasToDelete, String parentName) throws IOException {
 		ArrayList<String> linesToAdd = new ArrayList<String>();
-		System.out.println(ShasToDelete);
 		String currentTreeName = parentName;
+		System.out.println("Current tree: ");
 		System.out.println(currentTreeName);
 		Boolean found = false;
 		String futureTree = "";
 		while (ShasToDelete.size() > 0) {
-			System.out.println();
-			if (currentTreeName.length() != 0) {
-				System.out.println("Tree file contents: ");
-				Path p = Paths.get("./objects/" + currentTreeName);
-				System.out.println(Files.readString(p));
-				System.out.println();
-			}
-			else {
-				System.out.println("No trees remain");
-			}
-			
-			System.out.println(ShasToDelete);
 			if (currentTreeName.equals("") && ShasToDelete.size() != 0) {
 				return "*";
 			}
 			BufferedReader reader = new BufferedReader(new FileReader("./objects/" + currentTreeName));
 			String line = reader.readLine();
-			System.out.println(line);
 			if (line.substring(0, 4).equals("tree")) {
-				futureTree = line.substring(7, 47);
-				System.out.println(futureTree);
+				futureTree = line.substring(7, 48);
 			}
 			else if (line.substring(0, 4).equals("blob")) {
 				futureTree = "";
 			}
-			while (line != null) {
-				System.out.println(line.substring(7, 47));
-				System.out.println(ShasToDelete.contains(line.substring(7, 47)));
-				
+			while (line != null) {		
 				if (!line.substring(0, 4).equals("tree")) {
-					String sha1 = line.substring(7, 47);
+					String sha1 = line.substring(7, 48);
 					if (ShasToDelete.contains(sha1)) {
 						ShasToDelete.remove(sha1);
 						System.out.println("DELETING");
@@ -236,7 +206,7 @@ public class Commit {
 						}
 					}
 					else {
-						String formattedForIndex = line.substring(48) + " " + line.substring(7, 47);
+						String formattedForIndex = line.substring(47) + " " + line.substring(7, 47);
 						linesToAdd.add(formattedForIndex);
 					}
 				}
@@ -256,7 +226,6 @@ public class Commit {
 	
 	public void addEditedFiles(ArrayList<String> fileNamesToUpdate) throws NoSuchAlgorithmException, IOException {
 		for (int i = 0; i < fileNamesToUpdate.size(); i++) {
-			System.out.println(fileNamesToUpdate.get(i));
 			Blob blobby = new Blob(fileNamesToUpdate.get(i));
 			
 			Path p = Paths.get("index");
@@ -301,8 +270,8 @@ public class Commit {
 		Commit commit3 = new Commit("3rd Commit", "Eliza",  "./objects/" + commit2.getCommitName());
 		myGit.add("test4.txt");
 		myGit.add("test5.txt");
-		myGit.editTest("test2.txt");
-		myGit.edit("test2.txt");
+//		myGit.editTest("test2.txt");
+		//myGit.delete("test2.txt");
 		Commit commit4 = new Commit("4th Commit", "Ava",  "./objects/" + commit3.getCommitName());
 
 	}

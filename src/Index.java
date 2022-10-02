@@ -179,7 +179,8 @@ public class Index {
 	
 	public void editTest(String fileName) throws FileNotFoundException {
 		PrintWriter writer = new PrintWriter(fileName);
-		writer.print(Math.random());
+		String n = "" + (Math.random() * 100);
+		writer.print(n);
 	}
 	
 	public static void main(String []args) throws NoSuchAlgorithmException, IOException {
