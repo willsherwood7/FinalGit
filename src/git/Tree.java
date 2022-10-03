@@ -1,3 +1,4 @@
+package git;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -33,9 +34,7 @@ public class Tree {
 				allStrings += blobList.get(i);
 			}
 		}
-		System.out.println(allStrings);
 		String sha1 = getSha1(allStrings);
-		System.out.println(sha1);
 		address = sha1;
 		// This code is from my own Blob method. Convenient how that works out. Basically creates the file with the sha1 as the name.
 		Path p = Paths.get("./objects/" + sha1);
@@ -93,6 +92,5 @@ public class Tree {
 		test.add("blob : da39a3ee5e6b4b0d3255bfef95601890afd80709 test1.txt");
 		test.add("blob : da39a3ee5e6b4b0d3255bfef95601890afd80709 test2.txt");
 		Tree myTree = new Tree(test);
-		System.out.println(myTree.getAddress());
 	}
 }

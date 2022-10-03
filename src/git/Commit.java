@@ -1,3 +1,4 @@
+package git;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -28,7 +29,7 @@ public class Commit {
 	public Commit(String summary, String author) throws IOException, NoSuchAlgorithmException {
 		this.summary = summary;
 		this.author = author;
-		File f = new File("./objects/HEAD");
+		File f = new File("HEAD");
 		if(!f.exists()) { 
 			createHead();
 		}
@@ -38,14 +39,6 @@ public class Commit {
 		else {
 			this.parent = "./objects/" + getHead();
 		}
-		System.out.println();
-		System.out.println();
-		System.out.println();
-		System.out.println("IN HEAD FOLDER---");
-		System.out.println(parent);
-		System.out.println("IN HEAD FOLDER----");
-		System.out.println();
-		System.out.println();
 		child = null;
 		date = getDate();
 		sha1 = getCommitName();
@@ -59,7 +52,7 @@ public class Commit {
 		clearIndex();
 		writeFile();
 		
-		clearIndex();
+		//clearIndex();
 	}
 	
 	//parent of the next commit is the file name of the current commit
@@ -97,14 +90,17 @@ public class Commit {
 		ArrayList<String> deleteList = new ArrayList<String>();
 		ArrayList<String> editList = new ArrayList<String>();
 		
+		System.out.println("Index before " + summary);
+		Path p = Paths.get("index");
+		System.out.println(Files.readString(p));
+		
 		BufferedReader reader = new BufferedReader(new FileReader("index"));
 		String line = reader.readLine();
-		while (line != null) {
+		while (line != null && !line.equals("")) {
 			if (line.substring(0, 6).equals("*edit*")) {
 				deleteList.add(line.substring(line.indexOf(" ") + 1, line.indexOf(" ") + 41));
-				System.out.println("Delete list:");
-				System.out.println(deleteList);
 				editList.add(line.substring(6, line.indexOf(" ")));
+				System.out.println("EDIT EDIT EDIT");
 			}
 			else if (line.substring(0, 8).equals("*delete*")) {
 				deleteList.add(line.substring(line.indexOf(" ") + 1));
@@ -129,7 +125,7 @@ public class Commit {
 					indexList.add("tree : " + getTreeLocation(parent));
 					parentTreeLocation  =  getTreeLocation(parent);
 				}
-				//System.out.println(editList);
+				System.out.println(editList);
 				addEditedFiles(editList);
 			}
 		}
@@ -139,7 +135,7 @@ public class Commit {
 		BufferedReader reader2 = new BufferedReader(new FileReader("index"));
 		String fileName;
 		String line2 = reader2.readLine();
-		while (line2 != null) {
+		while (line2 != null && !line2.equals("")) {
 			if (!line2.substring(0,1).equals("*")) {
 				fileName = line2.substring(0, line2.indexOf(' '));
 				String sha1 = line2.substring(line2.indexOf(' ') + 1);
@@ -149,7 +145,6 @@ public class Commit {
 			line2 = reader2.readLine();
 		}
 		reader2.close();
-		System.out.println(indexList);
 		Tree newTree = new Tree(indexList);
 		myTree = newTree.getAddress();
 	}
@@ -157,7 +152,6 @@ public class Commit {
 	public String getTreeLocation(String parent) throws IOException {
 		BufferedReader reader = new BufferedReader(new FileReader(parent));
 		String line = reader.readLine();
-		System.out.println(line);
 		return line;
 	}
 	
@@ -198,8 +192,6 @@ public class Commit {
 	public String getLatestPossibleTree(ArrayList<String> ShasToDelete, String parentName) throws IOException {
 		ArrayList<String> linesToAdd = new ArrayList<String>();
 		String currentTreeName = parentName;
-		System.out.println("Current tree: ");
-		System.out.println(currentTreeName);
 		Boolean found = false;
 		String futureTree = "";
 		while (ShasToDelete.size() > 0) {
@@ -209,22 +201,22 @@ public class Commit {
 			BufferedReader reader = new BufferedReader(new FileReader("./objects/" + currentTreeName));
 			String line = reader.readLine();
 			if (line.substring(0, 4).equals("tree")) {
-				futureTree = line.substring(7, 48);
+				futureTree = line.substring(7, 47);
 			}
 			else if (line.substring(0, 4).equals("blob")) {
 				futureTree = "";
 			}
 			while (line != null) {		
 				if (!line.substring(0, 4).equals("tree")) {
-					String sha1 = line.substring(7, 48);
+					String sha1 = line.substring(7, 47);
 					if (ShasToDelete.contains(sha1)) {
 						ShasToDelete.remove(sha1);
-						System.out.println("DELETING");
 						if (ShasToDelete.size() == 0) {
 							found = true;
 						}
 					}
 					else {
+						//SOMETHING WRONG HERE
 						String formattedForIndex = line.substring(47) + " " + line.substring(7, 47);
 						linesToAdd.add(formattedForIndex);
 					}
@@ -280,18 +272,18 @@ public class Commit {
 	}
 	
 	public void updateHead(String head) throws IOException {
-		PrintWriter writer = new PrintWriter("./objects/HEAD");
+		PrintWriter writer = new PrintWriter("HEAD");
 		writer.println(head);
 		writer.close();
 	}
 	
 	public String getHead() throws IOException {
-		BufferedReader reader = new BufferedReader(new FileReader("./objects/HEAD"));
+		BufferedReader reader = new BufferedReader(new FileReader("HEAD"));
 		return reader.readLine();
 	}
 	
 	public void createHead() throws IOException {
-		File file = new File("./objects/HEAD");
+		File file = new File("HEAD");
 		file.createNewFile();
 	}
 	
@@ -307,12 +299,13 @@ public class Commit {
 //		myGit.add("test4.txt");
 //		myGit.add("test5.txt");
 //		Commit commit4 = new Commit("4th Commit", "Ava",  "./objects/" + commit3.getCommitName());
-		File file = new File("./objects/HEAD");
+		File file = new File("HEAD");
 		if(file.exists()) { 
 			file.delete();
 		}
 		Index myGit = new Index();
 		myGit.add("test1.txt");
+		myGit.editTest("test1.txt");
 		myGit.add("test2.txt");
 		Commit commit1 = new Commit("1st Commit", "WillSherwood");
 		myGit.add("test3.txt");
@@ -320,10 +313,10 @@ public class Commit {
 		Commit commit3 = new Commit("3rd Commit", "Eliza");
 		myGit.add("test4.txt");
 		myGit.add("test5.txt");
+		myGit.delete("test3.txt");
 		Commit commit4 = new Commit("4th Commit", "Ava");
-		PrintWriter p = new PrintWriter("./objects/HEAD");
+		PrintWriter p = new PrintWriter("HEAD");
 		p.print("");
 		p.close();
-		
 	}
 }

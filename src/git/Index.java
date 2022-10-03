@@ -1,3 +1,4 @@
+package git;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -63,72 +64,89 @@ public class Index {
 		writer.close();
 	}
 	
-	 public void removeLineFromFile(String lineToRemove) throws FileNotFoundException {
-		 String file = "index";
+//	 public void removeLineFromFile(String lineToRemove) throws IOException {
+//		 String file = "index";
+//		 
+//		 System.out.println(lineToRemove);
+//		 
+//		 System.out.println("Index before remove");
+//			Path p = Paths.get("index");
+//			System.out.println(Files.readString(p));
+//		 
+//		    try {
+//		      File inFile = new File(file);
+//
+//		      //Construct the new file that will later be renamed to the original filename.
+//		      File tempFile = new File(inFile.getAbsolutePath() + ".tmp");
+//
+//		      BufferedReader br = new BufferedReader(new FileReader(file));
+//		      PrintWriter pw = new PrintWriter(new FileWriter(tempFile));
+//
+//		      String line = null;
+//
+//		      while ((line = br.readLine()) != null) {
+//
+//		        if (!line.trim().equals(lineToRemove)) {
+//		          pw.println(line);
+//		          pw.flush();
+//		        }
+//		      }
+//		      pw.close();
+//		      br.close();
+//
+//		      //Delete the original file
+//		      if (!inFile.delete()) {
+//		        System.out.println("Could not delete file");
+//		        return;
+//		      }
+//
+//		      //Rename the new file to the filename the original file had.
+//		      if (!tempFile.renameTo(inFile))
+//		        System.out.println("Could not rename file");
+//
+//		    }
+//		    catch (FileNotFoundException ex) {
+//		      ex.printStackTrace();
+//		    }
+//		    catch (IOException ex) {
+//		      ex.printStackTrace();
+//		    }
+//
+//	            Scanner filey = new Scanner(new File("index"));
+//	            PrintWriter writer = new PrintWriter("index");
+//
+//	            while (filey.hasNext()) {
+//	                String line = filey.nextLine();
+//	                if (!line.isEmpty()) {
+//	                    writer.write(line);
+//	                    writer.write("\n");
+//	                }
+//	            }
+//
+//	            filey.close();
+//	            writer.close();
+//	    
+//		  }
+	
+	public void removeLineFromFile(String lineToRemove) throws IOException {
+		File inputFile = new File("index");
+		File tempFile = new File("TempFile.txt");
 
-		    try {
+		BufferedReader reader = new BufferedReader(new FileReader(inputFile));
+		BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile));
 
-		      File inFile = new File(file);
+		String currentLine;
 
-		      if (!inFile.isFile()) {
-		        System.out.println("Parameter is not an existing file");
-		        return;
-		      }
-
-		      //Construct the new file that will later be renamed to the original filename.
-		      File tempFile = new File(inFile.getAbsolutePath() + ".tmp");
-
-		      BufferedReader br = new BufferedReader(new FileReader(file));
-		      PrintWriter pw = new PrintWriter(new FileWriter(tempFile));
-
-		      String line = null;
-
-		      //Read from the original file and write to the new
-		      //unless content matches data to be removed.
-		      while ((line = br.readLine()) != null) {
-
-		        if (!line.trim().equals(lineToRemove)) {
-
-		          pw.println(line);
-		          pw.flush();
-		        }
-		      }
-		      pw.close();
-		      br.close();
-
-		      //Delete the original file
-		      if (!inFile.delete()) {
-		        System.out.println("Could not delete file");
-		        return;
-		      }
-
-		      //Rename the new file to the filename the original file had.
-		      if (!tempFile.renameTo(inFile))
-		        System.out.println("Could not rename file");
-
-		    }
-		    catch (FileNotFoundException ex) {
-		      ex.printStackTrace();
-		    }
-		    catch (IOException ex) {
-		      ex.printStackTrace();
-		    }
-
-	            Scanner filey = new Scanner(new File("index"));
-	            PrintWriter writer = new PrintWriter("index");
-
-	            while (filey.hasNext()) {
-	                String line = filey.nextLine();
-	                if (!line.isEmpty()) {
-	                    writer.write(line);
-	                    writer.write("\n");
-	                }
-	            }
-
-	            filey.close();
-	            writer.close();
-	    
-		  }
+		while((currentLine = reader.readLine()) != null) {
+		    // trim newline when comparing with lineToRemove
+		    String trimmedLine = currentLine.trim();
+		    if(trimmedLine.equals(lineToRemove)) continue;
+		    writer.write(currentLine + System.getProperty("line.separator"));
+		}
+		writer.close(); 
+		reader.close(); 
+		tempFile.renameTo(inputFile);
+	}
 	
 	public void remove(String fileName) throws NoSuchAlgorithmException, IOException {
 		Path pathToFile = Paths.get("objects/" + tracker.get(fileName));
@@ -177,10 +195,11 @@ public class Index {
 		writer.close();
 	}
 	
-	public void editTest(String fileName) throws FileNotFoundException {
+	public void editTest(String fileName) throws IOException {
 		PrintWriter writer = new PrintWriter(fileName);
 		String n = "" + (Math.random() * 100);
-		writer.print(n);
+		writer.println(n);
+		writer.close();
 	}
 	
 	public static void main(String []args) throws NoSuchAlgorithmException, IOException {
