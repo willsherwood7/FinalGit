@@ -270,8 +270,6 @@ public class Commit {
 		Commit commit3 = new Commit("3rd Commit", "Eliza",  "./objects/" + commit2.getCommitName());
 		myGit.add("test4.txt");
 		myGit.add("test5.txt");
-//		myGit.editTest("test2.txt");
-		//myGit.delete("test2.txt");
 		Commit commit4 = new Commit("4th Commit", "Ava",  "./objects/" + commit3.getCommitName());
 
 	}
