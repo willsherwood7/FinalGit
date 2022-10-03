@@ -25,22 +25,41 @@ public class Commit {
 	String sha1;
 	String parentTreeLocation;
 	
-	public Commit(String summary, String author, String parentFileName) throws IOException, NoSuchAlgorithmException {
+	public Commit(String summary, String author) throws IOException, NoSuchAlgorithmException {
 		this.summary = summary;
 		this.author = author;
-		//this.pTree = pTree;
-		this.parent = parentFileName;
+		File f = new File("./objects/HEAD");
+		if(!f.exists()) { 
+			createHead();
+		}
+		if (getHead() == null) {
+			parent = null;
+		}
+		else {
+			this.parent = "./objects/" + getHead();
+		}
+		System.out.println();
+		System.out.println();
+		System.out.println();
+		System.out.println("IN HEAD FOLDER---");
+		System.out.println(parent);
+		System.out.println("IN HEAD FOLDER----");
+		System.out.println();
+		System.out.println();
 		child = null;
 		date = getDate();
 		sha1 = getCommitName();
+		updateHead(sha1);
+		
 		if (parent != null) {
 			this.setFilesChildToMe(parent);
 		}
+		
 		createMyTree();
 		clearIndex();
 		writeFile();
 		
-		//clearIndex();
+		clearIndex();
 	}
 	
 	//parent of the next commit is the file name of the current commit
@@ -135,8 +154,8 @@ public class Commit {
 		myTree = newTree.getAddress();
 	}
 
-	public String getTreeLocation(String parentTree) throws IOException {
-		BufferedReader reader = new BufferedReader(new FileReader(parentTree));
+	public String getTreeLocation(String parent) throws IOException {
+		BufferedReader reader = new BufferedReader(new FileReader(parent));
 		String line = reader.readLine();
 		System.out.println(line);
 		return line;
@@ -260,17 +279,51 @@ public class Commit {
 		}
 	}
 	
+	public void updateHead(String head) throws IOException {
+		PrintWriter writer = new PrintWriter("./objects/HEAD");
+		writer.println(head);
+		writer.close();
+	}
+	
+	public String getHead() throws IOException {
+		BufferedReader reader = new BufferedReader(new FileReader("./objects/HEAD"));
+		return reader.readLine();
+	}
+	
+	public void createHead() throws IOException {
+		File file = new File("./objects/HEAD");
+		file.createNewFile();
+	}
+	
 	public static void main(String []args) throws NoSuchAlgorithmException, IOException {
+		// THIS IS THE TEST ASSOCIATED WITH THE SCREENSHOTS - PROVES I HAVE FIRST PART OF PROJECT DONE
+//		Index myGit = new Index();
+//		myGit.add("test1.txt");
+//		myGit.add("test2.txt");
+//		Commit commit1 = new Commit("1st Commit", "WillSherwood", null);
+//		myGit.add("test3.txt");
+//		Commit commit2 = new Commit("2nd Commit", "Charles", "./objects/" + commit1.getCommitName());
+//		Commit commit3 = new Commit("3rd Commit", "Eliza",  "./objects/" + commit2.getCommitName());
+//		myGit.add("test4.txt");
+//		myGit.add("test5.txt");
+//		Commit commit4 = new Commit("4th Commit", "Ava",  "./objects/" + commit3.getCommitName());
+		File file = new File("./objects/HEAD");
+		if(file.exists()) { 
+			file.delete();
+		}
 		Index myGit = new Index();
 		myGit.add("test1.txt");
 		myGit.add("test2.txt");
-		Commit commit1 = new Commit("1st Commit", "WillSherwood", null);
+		Commit commit1 = new Commit("1st Commit", "WillSherwood");
 		myGit.add("test3.txt");
-		Commit commit2 = new Commit("2nd Commit", "Charles", "./objects/" + commit1.getCommitName());
-		Commit commit3 = new Commit("3rd Commit", "Eliza",  "./objects/" + commit2.getCommitName());
+		Commit commit2 = new Commit("2nd Commit", "Charles");
+		Commit commit3 = new Commit("3rd Commit", "Eliza");
 		myGit.add("test4.txt");
 		myGit.add("test5.txt");
-		Commit commit4 = new Commit("4th Commit", "Ava",  "./objects/" + commit3.getCommitName());
-
+		Commit commit4 = new Commit("4th Commit", "Ava");
+		PrintWriter p = new PrintWriter("./objects/HEAD");
+		p.print("");
+		p.close();
+		
 	}
 }
