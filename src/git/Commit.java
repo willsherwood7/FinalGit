@@ -90,9 +90,9 @@ public class Commit {
 		ArrayList<String> deleteList = new ArrayList<String>();
 		ArrayList<String> editList = new ArrayList<String>();
 		
-		System.out.println("Index before " + summary);
-		Path p = Paths.get("index");
-		System.out.println(Files.readString(p));
+//		System.out.println("Index before " + summary);
+//		Path p = Paths.get("index");
+//		System.out.println(Files.readString(p));
 		
 		BufferedReader reader = new BufferedReader(new FileReader("index"));
 		String line = reader.readLine();
@@ -100,14 +100,15 @@ public class Commit {
 			if (line.substring(0, 6).equals("*edit*")) {
 				deleteList.add(line.substring(line.indexOf(" ") + 1, line.indexOf(" ") + 41));
 				editList.add(line.substring(6, line.indexOf(" ")));
-				System.out.println("EDIT EDIT EDIT");
 			}
 			else if (line.substring(0, 8).equals("*delete*")) {
+				System.out.println("Found a delete.");
 				deleteList.add(line.substring(line.indexOf(" ") + 1));
 			}
 			line = reader.readLine();
 		}
 		reader.close();
+		System.out.println(deleteList);
 		
 		if (parent != null) {
 			if (deleteList.size() == 0) {
@@ -116,17 +117,20 @@ public class Commit {
 			}
 			else {
 				String newParentTreeLocation  = getLatestPossibleTree(deleteList, getTreeLocation(parent));
-				
-				if (!newParentTreeLocation.equals("") &&  !newParentTreeLocation.equals("*")) {
+				System.out.println(newParentTreeLocation);
+				if (!newParentTreeLocation.equals("") && !newParentTreeLocation.equals("*")) {
 					indexList.add("tree : " + newParentTreeLocation);
 					parentTreeLocation = newParentTreeLocation;
+					System.out.println(parentTreeLocation);
+					System.out.println("Shouldnt be here");
 				}
 				else if (newParentTreeLocation.equals("*")) {
 					indexList.add("tree : " + getTreeLocation(parent));
 					parentTreeLocation  =  getTreeLocation(parent);
+					System.out.println("Shouldnt be here either");
 				}
-				System.out.println(editList);
 				addEditedFiles(editList);
+				System.out.println(editList);
 			}
 		}
 		
@@ -145,6 +149,8 @@ public class Commit {
 			line2 = reader2.readLine();
 		}
 		reader2.close();
+		System.out.println("this is going into commit 3");
+		System.out.println(indexList);
 		Tree newTree = new Tree(indexList);
 		myTree = newTree.getAddress();
 	}
@@ -192,24 +198,47 @@ public class Commit {
 	public String getLatestPossibleTree(ArrayList<String> ShasToDelete, String parentName) throws IOException {
 		ArrayList<String> linesToAdd = new ArrayList<String>();
 		String currentTreeName = parentName;
+		System.out.println(parentName);
+		System.out.println("PARENT");
 		Boolean found = false;
 		String futureTree = "";
+		
 		while (ShasToDelete.size() > 0) {
+			
+			System.out.println();
+			System.out.println();
+			System.out.println("Tree " + currentTreeName);
+			Path p = Paths.get("./objects/" + currentTreeName);
+			System.out.println(Files.readString(p));
+			System.out.println();
+			System.out.println();
+			
+			
 			if (currentTreeName.equals("") && ShasToDelete.size() != 0) {
+				System.out.println("no tree included");
 				return "*";
 			}
 			BufferedReader reader = new BufferedReader(new FileReader("./objects/" + currentTreeName));
 			String line = reader.readLine();
 			if (line.substring(0, 4).equals("tree")) {
 				futureTree = line.substring(7, 47);
+				System.out.println("Found tree");
 			}
 			else if (line.substring(0, 4).equals("blob")) {
+				System.out.println(line.substring(0, 4));
 				futureTree = "";
 			}
-			while (line != null) {		
+			System.out.println(futureTree);
+			while (line != null && !line.equals("")) {	
+				System.out.println(line);
 				if (!line.substring(0, 4).equals("tree")) {
 					String sha1 = line.substring(7, 47);
 					if (ShasToDelete.contains(sha1)) {
+						System.out.println("DELETING");
+						System.out.println("CURRENT TREE");
+						System.out.println(currentTreeName);
+						System.out.println("FUTURE TREE");
+						System.out.println(futureTree);
 						ShasToDelete.remove(sha1);
 						if (ShasToDelete.size() == 0) {
 							found = true;
@@ -217,7 +246,7 @@ public class Commit {
 					}
 					else {
 						//SOMETHING WRONG HERE
-						String formattedForIndex = line.substring(47) + " " + line.substring(7, 47);
+						String formattedForIndex = line.substring(48) + " " + line.substring(7, 47);
 						linesToAdd.add(formattedForIndex);
 					}
 				}
@@ -226,8 +255,10 @@ public class Commit {
 			currentTreeName = futureTree;
 			reader.close();
 		}
+		System.out.println(linesToAdd);
 		addFilesNeeded(linesToAdd);
 		if (found) {
+			System.out.println("HERE");
 			return futureTree;
 		}
 		else {
@@ -299,24 +330,26 @@ public class Commit {
 //		myGit.add("test4.txt");
 //		myGit.add("test5.txt");
 //		Commit commit4 = new Commit("4th Commit", "Ava",  "./objects/" + commit3.getCommitName());
-		File file = new File("HEAD");
-		if(file.exists()) { 
-			file.delete();
-		}
-		Index myGit = new Index();
-		myGit.add("test1.txt");
-		myGit.editTest("test1.txt");
-		myGit.add("test2.txt");
-		Commit commit1 = new Commit("1st Commit", "WillSherwood");
-		myGit.add("test3.txt");
-		Commit commit2 = new Commit("2nd Commit", "Charles");
-		Commit commit3 = new Commit("3rd Commit", "Eliza");
-		myGit.add("test4.txt");
-		myGit.add("test5.txt");
-		myGit.delete("test3.txt");
-		Commit commit4 = new Commit("4th Commit", "Ava");
-		PrintWriter p = new PrintWriter("HEAD");
-		p.print("");
-		p.close();
+		
+		
+//		File file = new File("HEAD");
+//		if(file.exists()) { 
+//			file.delete();
+//		}
+//		Index myGit = new Index();
+//		myGit.add("test1.txt");
+//		myGit.editTest("test1.txt");
+//		myGit.add("test2.txt");
+//		Commit commit1 = new Commit("1st Commit", "WillSherwood");
+//		myGit.add("test3.txt");
+//		Commit commit2 = new Commit("2nd Commit", "Charles");
+//		Commit commit3 = new Commit("3rd Commit", "Eliza");
+//		myGit.add("test4.txt");
+//		myGit.add("test5.txt");
+//		myGit.delete("test3.txt");
+//		Commit commit4 = new Commit("4th Commit", "Ava");
+//		PrintWriter p = new PrintWriter("HEAD");
+//		p.print("");
+//		p.close();
 	}
 }
