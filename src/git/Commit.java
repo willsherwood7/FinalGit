@@ -134,8 +134,10 @@ public class Commit {
 			}
 		}
 		
-		//This part only adds stuff from Index
-		//Going to create a file
+		System.out.println("Index before I actually add" + summary);
+		Path p = Paths.get("index");
+		System.out.println(Files.readString(p));
+		
 		BufferedReader reader2 = new BufferedReader(new FileReader("index"));
 		String fileName;
 		String line2 = reader2.readLine();
@@ -204,15 +206,6 @@ public class Commit {
 		String futureTree = "";
 		
 		while (ShasToDelete.size() > 0) {
-			
-			System.out.println();
-			System.out.println();
-			System.out.println("Tree " + currentTreeName);
-			Path p = Paths.get("./objects/" + currentTreeName);
-			System.out.println(Files.readString(p));
-			System.out.println();
-			System.out.println();
-			
 			
 			if (currentTreeName.equals("") && ShasToDelete.size() != 0) {
 				System.out.println("no tree included");
