@@ -45,7 +45,8 @@ class CommitTester {
 		PrintWriter pw = new PrintWriter("HEAD");
 		pw.print("");
 		pw.close();
-//		
+		
+		//ALL OF THIS FUNCTIONS TOO! Proof that my deletes and edits work	
 //		Index myGit = new Index();
 //		myGit.add("test1.txt");
 //		myGit.add("test2.txt");
@@ -66,9 +67,7 @@ class CommitTester {
 //		
 //		PrintWriter p = new PrintWriter("HEAD");
 //		p.print("");
-//		p.close();
-		
-//ALL OF THIS FUNCTIONS TOO! Proof that my deletes and edits work		
+//		p.close();	
 //		Index myGit = new Index();
 //		myGit.add("test1.txt");
 //		myGit.add("test2.txt");
